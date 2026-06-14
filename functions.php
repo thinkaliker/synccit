@@ -16,6 +16,7 @@ if($prettyurls) {
     define('DEVICESRMURL',     $baseurl."/remove/@k/@h");
     define('INDEXURL',         $baseurl."/");
     define('DONATEURL',        $baseurl."/donate");
+    define('ADMINURL',         $baseurl."/admin");
     define('BASEURL',          $baseurl."/");
 } else {
     define('DEVICESURL',       $baseurl."/addkey.php");
@@ -29,6 +30,7 @@ if($prettyurls) {
     define('DEVICESRMURL',     $baseurl."/addkey.php?code=@k&amp;hash=@h&amp;do=remove");
     define('INDEXURL',         $baseurl."/");
     define('DONATEURL',        $baseurl."/donate.php");
+    define('ADMINURL',         $baseurl."/admin.php");
     define('BASEURL',          $baseurl."/");
 }
 

@@ -84,3 +84,14 @@ UPDATE  `rddtsync`.`faq` SET  `answer` =  'Go <a href="http://synccit.com/reset.
 
 ALTER TABLE  `user` ADD  `resethash` TEXT NULL;
 ALTER TABLE  `user` ADD  `canreset` INT( 1 ) NOT NULL DEFAULT  '0';
+
+
+-- ----------------------------------------------
+
+
+-- admin panel
+
+-- add is_admin flag to user table
+-- set the first admin manually: UPDATE `user` SET `is_admin` = 1 WHERE `username` = 'yourusername';
+
+ALTER TABLE `user` ADD `is_admin` INT(1) NOT NULL DEFAULT '0';
