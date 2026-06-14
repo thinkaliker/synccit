@@ -11,8 +11,8 @@ RUN docker-php-ext-install mysqli
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Install MySQL client (used in entrypoint for health check and schema init)
-RUN apt-get update && apt-get install -y default-mysql-client && rm -rf /var/lib/apt/lists/*
+# Install MySQL client (used in entrypoint for health check and schema init) + unzip for Composer
+RUN apt-get update && apt-get install -y default-mysql-client unzip && rm -rf /var/lib/apt/lists/*
 
 # Install PHP dependencies (PHPMailer) — copy composer.json first for layer caching
 COPY composer.json /var/www/html/composer.json
