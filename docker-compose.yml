@@ -1,0 +1,53 @@
+services:
+  synccit:
+    image: ${SYNCCIT_IMAGE:-ghcr.io/drakeapps/synccit:latest}
+    ports:
+      - "${APP_PORT:-8080}:80"
+    environment:
+      # Database — defaults to the bundled 'db' service.
+      # For an external DB, override DB_HOST (and other DB_* vars) via .env
+      # and run without --profile internal-db.
+      DB_HOST: ${DB_HOST:-db}
+      DB_USER: ${DB_USER:-synccit}
+      DB_PASS: ${DB_PASS:-synccit}
+      DB_NAME: ${DB_NAME:-rddtsync}
+      BASE_HOST: ${BASE_HOST:-http://localhost:8080}
+      BASE_URL: ${BASE_URL:-}
+      API_LOC: ${API_LOC:-}
+      PRETTY_URLS: ${PRETTY_URLS:-true}
+      # SMTP — leave blank to disable email features
+      SMTP_SERVER: ${SMTP_SERVER:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_ENC: ${SMTP_ENC:-ssl}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      FROM_EMAIL: ${FROM_EMAIL:-}
+      # Set to true to also run api/apps.sql on first start
+      INIT_APPS_DB: ${INIT_APPS_DB:-false}
+    depends_on:
+      synccit_db:
+        condition: service_healthy
+        required: false
+
+  # ── Internal database (bundled) ─────────────────────────────────────────────
+  # Start with:  docker compose --profile internal-db up
+  # Skip for external DB: docker compose up  (set DB_HOST etc. in .env)
+  synccit_db:
+    image: mysql:8.0
+    profiles:
+      - internal-db
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-rddtsync}
+      MYSQL_USER: ${DB_USER:-synccit}
+      MYSQL_PASSWORD: ${DB_PASS:-synccit}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  synccit_db_data:

@@ -6,7 +6,7 @@
 // either copy the folder (renamed to phpmailer in this case) to this directory
 // or add it to your include_path and delete the phpmailer/ below
 //include("phpmailer/class.phpmailer.php");
-require "phpmailer/PHPMailerAutoload.php";
+require __DIR__ . '/vendor/autoload.php';
 
 include_once("config.php");
 
