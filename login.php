@@ -12,20 +12,20 @@ if($session->isLoggedIn()) {
 //TODO add hash to login form to prevent csrf
 
 
-if(isset($_POST['login'])) {	
+$error = "";
+$hash = "";
+$username = "";
 
-	$error = "";
-	
+if(isset($_POST['login'])) {
+
 	$username = htmlspecialchars($_POST['username']);
-	
+
 	// check username validity
 	$password = $_POST['password'];
 
 	$userinfo = $mysql->query("SELECT * FROM `user` WHERE `username` = '".$mysql->real_escape_string($username)."' LIMIT 1");
 
     if($userinfo->num_rows > 0) {
-
-        $error = $hashset;
 
 
 

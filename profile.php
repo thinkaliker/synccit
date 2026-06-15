@@ -24,6 +24,8 @@ if($loggedin) {
     exit;
 }
 
+$error = "";
+
 if(isset($_POST['do']) && $_POST['do'] == "edit" && $_POST['hash'] == $hash) {
     $email = $_POST['email'];
     $oldpass = $_POST['oldpassword'];

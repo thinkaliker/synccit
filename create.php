@@ -4,9 +4,12 @@ include("config.php");
 include("functions.php");
 
 
-if(isset($_POST['create'])) {
+$error = "";
+$hash = "";
+$username = "";
+$email = "";
 
-    $error = "";
+if(isset($_POST['create'])) {
 
     $username = htmlspecialchars($_POST['username']);
     $email = htmlspecialchars($_POST['email']);

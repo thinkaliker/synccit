@@ -24,6 +24,8 @@ if($loggedin) {
     exit;
 }
 
+$error = "";
+
 if(isset($_REQUEST['do']) && isset($_REQUEST['code']) && $_REQUEST['do'] == "remove") {
 
     $code = $_REQUEST['code'];

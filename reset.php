@@ -11,6 +11,7 @@ if(!isset($_SESSION['temphash'])) {
 }
 
 $error = "";
+$hideform = 0;
 
 if($_POST['reset'] == "reset") {
     if($_POST['hash'] != $_SESSION['temphash']) {
