@@ -194,7 +194,7 @@ if(isset($_POST['data'])) {
         }
 
     }
-} else if(isset($_POST['username']) && isset($_POST['auth']) && $_POST['mode']) {
+} else if(isset($_POST['username']) && isset($_POST['auth']) && isset($_POST['mode'])) {
     // looking at this now, this is a mess.
     if($_POST['mode'] == "update") {
         $username = $_POST['username'];
@@ -321,8 +321,7 @@ function insertLinks($updates, $developer, $user, $devicename) {
         $linkid = key($updates);
         if(strlen($linkid) >= 6) { // seems a blank link can get added and causes some trouble
 
-            //$commentcount = $current['comment'] != NULL ? $current['commment'] : "-1";
-            if($current['comment'] != NULL) {
+            if(isset($current['comment']) && $current['comment'] !== null) {
                 $commentcount = $current['comment'];
                 $commenttime = time();
             } else {
@@ -350,7 +349,7 @@ function insertLinks($updates, $developer, $user, $devicename) {
                   '".$mysql->real_escape_string($user)."',
                   '".$mysql->real_escape_string($linktime)."',
                   '".$mysql->real_escape_string($commenttime)."',
-                  '".$mysql->real_escape_string($commentcount)."',
+                  '".$mysql->real_escape_string($commentcount == "-1" ? "0" : $commentcount)."',
                   '".$mysql->real_escape_string($linktime)."',
                   '".$mysql->real_escape_string($devicename)."',
                   '".$mysql->real_escape_string($developer)."'
@@ -460,7 +459,7 @@ function readLinks($links, $user, $type=null) {
         }
         $output = json_encode($json);
 
-    } else if($type="xml") {
+    } else if($type=="xml") {
         $xml = new SimpleXMLElement('<?xml version="1.0"?><synccit></synccit>');
         $links = $xml->addChild("links");
         while($link = $result->fetch_assoc()) {
@@ -549,7 +548,7 @@ function historyLinks($user, $type=null, $links=0, $time=0) {
         }
         $output = json_encode($json);
 
-    } else if($type="xml") {
+    } else if($type=="xml") {
         $xml = new SimpleXMLElement('<?xml version="1.0"?><synccit></synccit>');
         $links = $xml->addChild("links");
         while($link = $result->fetch_assoc()) {
