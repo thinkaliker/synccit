@@ -9,6 +9,12 @@ include("../linkclass.php");
 
 $apiversion = 1; // current version of API. this will only deal with major changes
 $apirevision = 12; // current revision. increments more. for smaller changes
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
+}
 header("X-API: $apiversion");
 header("X-Revision: $apirevision");
 
