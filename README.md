@@ -1,19 +1,66 @@
 
 # **[API Docs on Wiki](https://github.com/drakeapps/synccit/wiki/API)**
 
-# Requirements
+## Docker (recommended)
+
+### Quick start with bundled database
+
+```bash
+cp .env.example .env
+docker compose up
+```
+
+The bundled MySQL container is included via the `COMPOSE_PROFILES=internal-db` default in `.env`. The schema is applied automatically on first boot.
+
+The app will be available at `http://localhost:8080`.
+
+### Using an external database
+
+Remove `COMPOSE_PROFILES=internal-db` from `.env`, then set your connection details:
+
+```env
+DB_HOST=your.db.host
+DB_USER=youruser
+DB_PASS=yourpassword
+DB_NAME=rddtsync
+```
+
+Create the database and run `mysql.sql` against it before starting, then:
+
+```bash
+docker compose up
+```
+
+### Configuration
+
+All settings are controlled via environment variables in `.env`. Key options:
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `APP_PORT` | `8080` | Host port to expose |
+| `BASE_HOST` | `http://localhost:8080` | Public-facing URL (no trailing slash) |
+| `SMTP_SERVER` / `SMTP_USER` / `SMTP_PASS` | — | SMTP credentials for password reset emails |
+| `SYNCCIT_IMAGE` | `ghcr.io/thinkaliker/synccit:latest` | Docker image to pull |
+
+See `.env.example` for the full list.
+
+---
+
+## Manual Install
+
+## Requirements
 
 * PHP 5.3
 * MySQL database
 
-# Installing
+## Installing
 
 1. Create new database (using mysql command, phpMyAdmin, etc.)
 2. Run mysql.sql on database (using mysql command, phpMyAdmin, etc.)
 3. Edit `config.php` with database info and API location
 4. Site should up and running. Go to index.php in browser
 
-#Updating
+## Updating
 
 1. Replace all files except config.php
 2. Run relevant part of `diff.sql` from your current version
@@ -691,6 +738,33 @@ Link `555555` not returned since it was never updated.
  * Username is taken. Try something else
 
 
+
+# Admin Panel
+
+An admin panel is available at `/admin` (or `/admin.php`) for managing users and API keys.
+
+## Setup
+
+The admin panel requires a database migration and at least one admin user to be set manually.
+
+**1. Run the migration** to add the `is_admin` column:
+
+    docker compose exec synccit_db mysql -u synccit -p rddtsync -e "ALTER TABLE user ADD is_admin INT(1) NOT NULL DEFAULT '0';"
+
+**2. Grant admin to your account:**
+
+    docker compose exec synccit_db mysql -u synccit -p rddtsync -e "UPDATE user SET is_admin = 1 WHERE username = 'yourusername';"
+
+After that, log in and navigate to `/admin`. From there you can promote other users to admin via the edit page without touching the database again.
+
+## Features
+
+* **User list** — view all users with creation date, last login, and link count
+* **Create user** — create accounts with optional admin privileges
+* **Edit user** — change username, email, and admin status
+* **Set password** — reset any user's password directly without sending an email
+* **API key management** — view, add, and delete API keys (auth codes) for any user
+* **Delete user** — removes the user and all associated links, devices, and login sessions
 
 # License
 
