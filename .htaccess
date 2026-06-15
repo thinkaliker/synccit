@@ -14,4 +14,6 @@ RewriteRule ^logout/(.*)$ /logout.php?l=$1 [QSA,L]
 RewriteRule ^remove/([^/]+)/([^/]+)$ /addkey.php?code=$1&hash=$2&do=remove [QSA,L]
 RewriteRule ^admin$ /admin.php [L]
 RewriteRule ^admin\?(.*)$ /admin.php?$1 [QSA,L]
+RewriteRule ^links$ /links.php [L]
+RewriteRule ^links\?(.*)$ /links.php?$1 [QSA,L]
 </IfModule>

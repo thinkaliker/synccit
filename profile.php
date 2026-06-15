@@ -132,7 +132,7 @@ $_SESSION['temphash'] = hash("sha256", genrand());
         registered <?php echo strtolower(date("F n, Y", $user->created)); ?>
 
 <br /><br />
-        <?php echo $links; ?> links viewed
+        <a href="<?php echo LINKSURL; ?>"><?php echo $links; ?> links viewed</a>
 
 <br /><br />
         <?php echo $devices; ?> devices

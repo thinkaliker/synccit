@@ -13,6 +13,7 @@ if($prettyurls) {
     define('LOGOUTURL',        $baseurl."/logout/@s");
     define('FAQURL',           $baseurl."/faq");
     define('PROFILEURL',       $baseurl."/profile");
+    define('LINKSURL',         $baseurl."/links");
     define('DEVICESRMURL',     $baseurl."/remove/@k/@h");
     define('INDEXURL',         $baseurl."/");
     define('DONATEURL',        $baseurl."/donate");
@@ -27,6 +28,7 @@ if($prettyurls) {
     define('LOGOUTURL',        $baseurl."/logout.php?l=@s");
     define('FAQURL',           $baseurl."/faq.php");
     define('PROFILEURL',       $baseurl."/profile.php");
+    define('LINKSURL',         $baseurl."/links.php");
     define('DEVICESRMURL',     $baseurl."/addkey.php?code=@k&amp;hash=@h&amp;do=remove");
     define('INDEXURL',         $baseurl."/");
     define('DONATEURL',        $baseurl."/donate.php");
