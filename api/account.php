@@ -570,7 +570,7 @@ function createAccount($username, $password, $email, $developer) {
             $error = "";
 
         } else {
-            $r = $mysql->query("SELECT * FROM `user` WHERE `username` = '".mysql_real_escape_string($username)."' LIMIT 1");
+            $r = $mysql->query("SELECT * FROM `user` WHERE `username` = '".$mysql->real_escape_string($username)."' LIMIT 1");
             if($r->num_rows > 0) {
                 $error = "username already exists";
             } else {
