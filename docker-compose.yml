@@ -3,11 +3,12 @@ services:
     image: ${SYNCCIT_IMAGE:-ghcr.io/drakeapps/synccit:latest}
     ports:
       - "${APP_PORT:-8080}:80"
+    container_name: synccit
     environment:
       # Database — defaults to the bundled 'db' service.
       # For an external DB, override DB_HOST (and other DB_* vars) via .env
       # and run without --profile internal-db.
-      DB_HOST: ${DB_HOST:-db}
+      DB_HOST: ${DB_HOST:-synccit_db}
       DB_USER: ${DB_USER:-synccit}
       DB_PASS: ${DB_PASS:-synccit}
       DB_NAME: ${DB_NAME:-rddtsync}
@@ -36,13 +37,15 @@ services:
     image: mysql:8.0
     profiles:
       - internal-db
+    command: --skip-ssl
     environment:
       MYSQL_DATABASE: ${DB_NAME:-rddtsync}
       MYSQL_USER: ${DB_USER:-synccit}
       MYSQL_PASSWORD: ${DB_PASS:-synccit}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
+    container_name: synccit_db
     volumes:
-      - db_data:/var/lib/mysql
+      - synccit_db_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
