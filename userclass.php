@@ -40,9 +40,9 @@ class User {
         $this->lastlogin = htmlspecialchars($user["lastlogin"]);
         $this->lastactivity = htmlspecialchars($user["lastactivity"]);
         $this->lastip = htmlspecialchars($user["lastip"]);
-        $this->numlinks = htmlspecialchars($user["numlinks"]);
+        $this->numlinks = htmlspecialchars($user["numlink"]);
         $this->numcomments = htmlspecialchars($user["numcomments"]);
-        $this->attempts = htmlspecialchars($user["attempts"]);
+        $this->attempts = htmlspecialchars($user["loginattempts"]);
         $this->created = htmlspecialchars($user["created"]);
         $this->passhash = $user["passhash"];
         $this->salt = $user["salt"];
