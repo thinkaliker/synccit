@@ -168,7 +168,8 @@ if(isset($_POST['data'])) {
                 $id = $link["id"];
                 if(isset($link["comments"]) && $link["comments"] > -1) {
                     $updates[$id]["comment"] = $link["comments"];
-                    if($link["both"] == true || $link["both"] == "true" || $link["both"] == 1) {
+                    $both = $link["both"] ?? false;
+                    if($both == true || $both == "true" || $both == 1) {
                         $updates[$id]["link"] = 1;
                     }
                 } else {
@@ -334,7 +335,7 @@ function insertLinks($updates, $developer, $user, $devicename) {
                 $commentcount = "-1";
                 $commenttime = 0;
             }
-            $linktime = $current['link'] == 1 ? time() : 0;
+            $linktime = ($current['link'] ?? 0) == 1 ? time() : 0;
 
 
             $sql = "

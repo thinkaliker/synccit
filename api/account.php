@@ -266,7 +266,7 @@ function insertLinks($updates, $developer, $user, $devicename) {
                 $commentcount = "-1";
                 $commenttime = 0;
             }
-            $linktime = $current['link'] == 1 ? time() : 0;
+            $linktime = ($current['link'] ?? 0) == 1 ? time() : 0;
 
 
             $sql = "

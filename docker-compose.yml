@@ -63,6 +63,7 @@ services:
       synccit_db:
         condition: service_healthy
         required: false
+    restart: unless-stopped
 
   # ── Internal database (bundled) ─────────────────────────────────────────────
   # Start with:  docker compose --profile internal-db up
@@ -88,6 +89,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
 
 volumes:
   synccit_db_data:

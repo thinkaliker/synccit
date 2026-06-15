@@ -1,5 +1,11 @@
 <?php
 
+// Never print PHP warnings/notices into the HTTP response — they corrupt JSON/XML
+// API output and trigger "headers already sent". Log them instead.
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+error_reporting(E_ALL);
+
 
 // SETUP
 // Database info — set via environment variables or edit directly
