@@ -1,8 +1,17 @@
 
-<IfModule mod_rewrite.c>  
-RewriteEngine on  
-RewriteRule ^/login$ /login.php
-RewriteRule ^create$ /create.php
-RewriteRule ^admin$ /admin.php
+<IfModule mod_rewrite.c>
+RewriteEngine on
+RewriteRule ^login$ /login.php [L]
+RewriteRule ^create-account$ /create.php [L]
+RewriteRule ^create$ /create.php [L]
+RewriteRule ^devices$ /addkey.php [L]
+RewriteRule ^reset$ /reset.php [L]
+RewriteRule ^synccit-apps$ /plugin.php [L]
+RewriteRule ^faq$ /faq.php [L]
+RewriteRule ^profile$ /profile.php [L]
+RewriteRule ^donate$ /donate.php [L]
+RewriteRule ^logout/(.*)$ /logout.php?l=$1 [QSA,L]
+RewriteRule ^remove/([^/]+)/([^/]+)$ /addkey.php?code=$1&hash=$2&do=remove [QSA,L]
+RewriteRule ^admin$ /admin.php [L]
 RewriteRule ^admin\?(.*)$ /admin.php?$1 [QSA,L]
 </IfModule>

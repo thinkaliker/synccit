@@ -60,7 +60,9 @@ class Session {
 
     public function isLoggedIn() {
 
-        $this->restorePHPSession();
+        if (!$this->restorePHPSession()) {
+            return false;
+        }
         global $mysql;
         $sql = "SELECT * FROM `logincodes` WHERE `id` = '".$mysql->real_escape_string($this->id)."' LIMIT 1";
 
