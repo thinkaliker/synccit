@@ -85,7 +85,9 @@ if($loggedin) {
 
 </div>
 <div class="fourcol signupcolumn">
+<?php if(!$disableRegistration): ?>
 <a href="<?php echo REGISTERURL; ?>" class="signupbutton" >Sign Up Now</a>
+<?php endif; ?>
 </div>
 <div class="fourcol last">
 

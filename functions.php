@@ -47,7 +47,7 @@ function genrand() {
 
 // themeing
 function htmlHeader($title, $loggedin=false) {
-	global $baseurl;
+	global $baseurl, $disableRegistration;
     if($loggedin) {
         global $session;
         $key = $session->hash;
@@ -150,9 +150,13 @@ function htmlHeader($title, $loggedin=false) {
             <div class="twocol menubaritem">
                 <p><a href="<?php echo LOGINURL; ?>">Login</a></p>
             </div>
+            <?php if(!$disableRegistration): ?>
             <div class="twocol menubaritem register last">
                 <p><a href="<?php echo REGISTERURL; ?>">Register</a></p>
             </div>
+            <?php else: ?>
+            <div class="twocol menubaritem last"><p></p></div>
+            <?php endif; ?>
             <?php
         }?>
 </div>

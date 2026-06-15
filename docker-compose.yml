@@ -25,6 +25,8 @@ services:
       FROM_EMAIL: ${FROM_EMAIL:-}
       # Set to true to also run api/apps.sql on first start
       INIT_APPS_DB: ${INIT_APPS_DB:-false}
+      # Set to true to disable new user registration
+      DISABLE_REGISTRATION: ${DISABLE_REGISTRATION:-false}
     depends_on:
       synccit_db:
         condition: service_healthy

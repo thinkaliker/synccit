@@ -20,6 +20,9 @@ $apiloc = getenv('API_LOC') ?: ($basehost . '/api/');
 // Pretty URLs — requires server mod_rewrite support (enabled in Docker)
 $prettyurls = getenv('PRETTY_URLS') !== false ? (bool) getenv('PRETTY_URLS') : true;
 
+// Set to true to disable new user registration
+$disableRegistration = filter_var(getenv('DISABLE_REGISTRATION') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+
 // For password reset emails, using SMTP
 $smtpserver = getenv('SMTP_SERVER') ?: 'smtp.gmail.com';
 $smtpauth   = true;

@@ -3,6 +3,14 @@
 include("config.php");
 include("functions.php");
 
+if($disableRegistration) {
+    htmlHeader("create account - synccit");
+    echo '<div class="fourcol"><h2>registration disabled</h2></div>';
+    echo '<div class="fourcol"><p>New user registration is not available.</p></div>';
+    echo '<div class="fourcol last"></div>';
+    htmlFooter();
+    exit;
+}
 
 $error = "";
 $hash = "";
