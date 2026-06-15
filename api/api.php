@@ -354,7 +354,11 @@ function insertLinks($updates, $developer, $user, $devicename) {
                   '".$mysql->real_escape_string($devicename)."',
                   '".$mysql->real_escape_string($developer)."'
                 )";
-            $res = $mysql->query($sql);
+            try {
+                $res = $mysql->query($sql);
+            } catch (mysqli_sql_exception $e) {
+                $res = false;
+            }
             if(!$res) {
 
                 $sql = "
@@ -614,7 +618,12 @@ function createAccount($username, $password, $email, $developer) {
             '".$mysql->real_escape_string($developer)."'
         )";
 
-        if($mysql->query($sql)) {
+        try {
+            $insertResult = $mysql->query($sql);
+        } catch (mysqli_sql_exception $e) {
+            $insertResult = false;
+        }
+        if($insertResult) {
             // Success
             // just return nothing meaning no error
             $error = "";
@@ -704,7 +713,12 @@ function addAuth($username, $password, $device, $developer) {
                 '".time()."',
                 '".$mysql->real_escape_string($developer)."'
             )";
-            if($res = $mysql->query($sql)) {
+            try {
+                $res = $mysql->query($sql);
+            } catch (mysqli_sql_exception $e) {
+                $res = false;
+            }
+            if($res) {
                 $success = $key;
             } else {
                 $error = "database error";
