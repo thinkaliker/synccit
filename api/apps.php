@@ -35,6 +35,8 @@ if($mysql->connect_errno) {
     echo "database connection failure <!-- ".$mysql->connect_error." -->";
     die;
 }
+// Make real_escape_string charset-aware (see config.php).
+$mysql->set_charset('utf8mb4');
 
 
 if(isset($_POST['data'])) {

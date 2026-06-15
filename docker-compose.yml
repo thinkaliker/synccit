@@ -1,9 +1,41 @@
 services:
   synccit:
     image: ${SYNCCIT_IMAGE:-ghcr.io/drakeapps/synccit:latest}
+    # Container now runs Apache as the unprivileged www-data user on port 8080.
     ports:
-      - "${APP_PORT:-8080}:80"
+      - "${APP_PORT:-8080}:8080"
     container_name: synccit
+    # ── Runtime hardening ───────────────────────────────────────────────────
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    # read_only makes the root FS immutable, so every path Apache/PHP needs to
+    # write to is mounted as tmpfs (mode 1777 so the non-root www-data user can
+    # write). Apache pid/lock/logs and the PHP session dir live here.
+    volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs: { mode: 01777 }
+      - type: tmpfs
+        target: /var/run/apache2
+        tmpfs: { mode: 01777 }
+      - type: tmpfs
+        target: /var/lock/apache2
+        tmpfs: { mode: 01777 }
+      - type: tmpfs
+        target: /var/log/apache2
+        tmpfs: { mode: 01777 }
+      - type: tmpfs
+        target: /var/lib/php/sessions
+        tmpfs: { mode: 01777 }
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 8080) ? 0 : 1);"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     environment:
       # Database — defaults to the bundled 'db' service.
       # For an external DB, override DB_HOST (and other DB_* vars) via .env
@@ -36,6 +68,9 @@ services:
   # Start with:  docker compose --profile internal-db up
   # Skip for external DB: docker compose up  (set DB_HOST etc. in .env)
   synccit_db:
+    # For immutability pin by digest:
+    #   docker buildx imagetools inspect mysql:8.0 --format '{{.Manifest.Digest}}'
+    #   then: image: mysql:8.0@sha256:<digest>
     image: mysql:8.0
     profiles:
       - internal-db

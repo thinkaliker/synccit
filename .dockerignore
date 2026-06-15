@@ -3,3 +3,18 @@
 .idea
 .DS_Store
 vendor/
+
+# Never bake secrets or local config into the image
+.env
+.env.*
+
+# Schema / docs should not be inside the web root
+*.sql
+*.md
+docker-compose.yml
+Dockerfile
+.dockerignore
+.github
+# NOTE: docker-entrypoint.sh and apache.conf are intentionally NOT excluded —
+# the Dockerfile COPYies them explicitly. They are blocked from HTTP access by
+# the FilesMatch rules in apache.conf instead.

@@ -42,4 +42,7 @@ if($mysql->connect_errno) {
 	echo "database connection failure <!-- ".$mysql->connect_error." -->";
 	die;
 }
+// Make real_escape_string charset-aware — without this it cannot reliably
+// neutralize multibyte injection payloads.
+$mysql->set_charset('utf8mb4');
 
