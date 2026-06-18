@@ -69,13 +69,22 @@ services:
   # Start with:  docker compose --profile internal-db up
   # Skip for external DB: docker compose up  (set DB_HOST etc. in .env)
   synccit_db:
+    # MariaDB: smaller image and leaner on-disk footprint than mysql:8.0, and
+    # wire-compatible (the MYSQL_* env vars below are honoured as aliases).
     # For immutability pin by digest:
-    #   docker buildx imagetools inspect mysql:8.0 --format '{{.Manifest.Digest}}'
-    #   then: image: mysql:8.0@sha256:<digest>
-    image: mysql:8.0
+    #   docker buildx imagetools inspect mariadb:11 --format '{{.Manifest.Digest}}'
+    #   then: image: mariadb:11@sha256:<digest>
+    image: mariadb:11
     profiles:
       - internal-db
-    command: --skip-ssl
+    # Right-size a tiny DB and stop preallocating large files:
+    #   innodb-log-file-size      16M redo log (default is much larger)
+    #   innodb-buffer-pool-size   64M cache (RAM, sane for this dataset)
+    #   skip-log-bin              no binary logs (no replication / PITR here)
+    command: >
+      --innodb-log-file-size=16M
+      --innodb-buffer-pool-size=64M
+      --skip-log-bin
     environment:
       MYSQL_DATABASE: ${DB_NAME:-rddtsync}
       MYSQL_USER: ${DB_USER:-synccit}
@@ -85,7 +94,7 @@ services:
     volumes:
       - synccit_db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb"]
       interval: 5s
       timeout: 5s
       retries: 10

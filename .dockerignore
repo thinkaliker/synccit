@@ -10,6 +10,9 @@ vendor/
 
 # Schema / docs should not be inside the web root
 *.sql
+# ...except mysql.sql: the entrypoint needs it to initialize the schema on a
+# fresh DB. HTTP access to .sql is denied in apache.conf, so this is safe.
+!mysql.sql
 *.md
 docker-compose.yml
 Dockerfile
