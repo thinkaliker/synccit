@@ -94,7 +94,7 @@ services:
     volumes:
       - synccit_db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb"]
+      test: ["CMD", "healthcheck.sh", "--su-mysql", "--connect"]
       interval: 5s
       timeout: 5s
       retries: 10
