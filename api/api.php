@@ -386,7 +386,7 @@ function insertLinks($updates, $developer, $user, $devicename) {
                 }
                 $sql .= "
                     `lastcall` = '".$mysql->real_escape_string($devicename)."',
-                    `developers` = IFNULL(CONCAT(`developers`, ', ".$mysql->real_escape_string($developer)."'), '".$mysql->real_escape_string($developer)."')
+                    `developers` = IF(FIND_IN_SET('".$mysql->real_escape_string($developer)."', `developers`), `developers`, CONCAT_WS(',', NULLIF(`developers`, ''), '".$mysql->real_escape_string($developer)."'))
 
                     WHERE
                         `linkid` = '".$mysql->real_escape_string($linkid)."'
@@ -395,7 +395,12 @@ function insertLinks($updates, $developer, $user, $devicename) {
 
                     LIMIT 1
                 ";
-                $res = $mysql->query($sql);
+                try {
+                    $res = $mysql->query($sql);
+                } catch (mysqli_sql_exception $e) {
+                    error_log("insertLinks UPDATE failed for linkid {$linkid}: ".$e->getMessage());
+                    $res = false;
+                }
                 //var_dump($res);
             }
             //var_dump($res);
