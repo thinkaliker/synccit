@@ -4,7 +4,20 @@
 // API output and trigger "headers already sent". Log them instead.
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
+// Send the log copy to stderr so it surfaces in `docker compose logs synccit`.
+// This is a write to an existing fd, so it works under the read-only rootfs.
+ini_set('error_log', '/proc/self/fd/2');
 error_reporting(E_ALL);
+
+// Catch fatal errors (parse/uncaught-exception/E_ERROR) that bypass the API's
+// own xerror() path and otherwise vanish behind display_errors=0. Logs the
+// precise message/file/line to stderr so a 500 leaves a breadcrumb.
+register_shutdown_function(function () {
+	$e = error_get_last();
+	if ($e !== null && in_array($e['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+		error_log(sprintf('FATAL: %s in %s:%d', $e['message'], $e['file'], $e['line']));
+	}
+});
 
 
 // SETUP
