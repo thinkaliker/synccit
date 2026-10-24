@@ -177,13 +177,23 @@ if($prettyurls) {
 }
 
 
+// 6 random characters from [0-9a-z]: device auth codes (short because users
+// type them into apps) and generated passwords. random_int() is a CSPRNG; the
+// rand() this used to call is predictable from its own earlier output
 function genrand() {
+    $chars = "0123456789abcdefghijklmnopqrstuvwxyz";
     $rand = "";
     for($i=0; $i<6; $i++) {
-        // this was posted on stack overflow
-        $rand .= rand(0,1) ? rand(0,9) : chr(rand(ord('a'), ord('z')));
+        $rand .= $chars[random_int(0, strlen($chars) - 1)];
     }
     return $rand;
+}
+
+
+// unguessable token for CSRF checks: 256 bits from the CSPRNG, hex encoded
+// (the same 64-character shape as the sha256 hashes it replaces)
+function gentoken() {
+    return bin2hex(random_bytes(32));
 }
 
 

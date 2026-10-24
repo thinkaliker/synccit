@@ -6,7 +6,7 @@ include("session.php");
 include("userclass.php");
 
 if(!isset($_SESSION['temphash'])) {
-    $_SESSION['temphash'] = hash("sha256", genrand());
+    $_SESSION['temphash'] = gentoken();
 }
 
 $loggedin = $session->isLoggedIn();
@@ -89,7 +89,7 @@ $devices = $devices['count'];
 htmlHeader("edit your profile - synccit - reddit history/link sync", $loggedin);
 
 
-$_SESSION['temphash'] = hash("sha256", genrand());
+$_SESSION['temphash'] = gentoken();
 
 ?>
 

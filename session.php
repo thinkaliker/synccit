@@ -14,8 +14,11 @@ class Session {
     public function generateHash() {
 
 
-        //$this->hash = uniqid("", TRUE);
-        $this->hash = hash("sha256", uniqid("", TRUE));
+        // this is the login credential (session check, logout link and the
+        // account API's login code), so it has to be unguessable. uniqid() is
+        // derived from the clock; random_bytes() is a CSPRNG. 64 hex chars,
+        // which is what logincodes.authhash holds
+        $this->hash = bin2hex(random_bytes(32));
 
     }
 

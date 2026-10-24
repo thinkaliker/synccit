@@ -6,7 +6,7 @@ include("session.php");
 include("userclass.php");
 
 if(!isset($_SESSION['temphash'])) {
-    $_SESSION['temphash'] = hash("sha256", genrand());
+    $_SESSION['temphash'] = gentoken();
 }
 
 $loggedin = $session->isLoggedIn();
@@ -51,7 +51,7 @@ if(isset($_REQUEST['do']) && isset($_REQUEST['code']) && $_REQUEST['do'] == "rem
         }
     }
 
-    $_SESSION['temphash'] = hash("sha256", genrand());
+    $_SESSION['temphash'] = gentoken();
     $hash = $_SESSION['temphash'];
 }
 
@@ -82,7 +82,7 @@ if(isset($_POST['submit']) and strcmp($hash, $_POST['hash']) == 0) {
         }
     }
 
-    $_SESSION['temphash'] = hash("sha256", genrand());
+    $_SESSION['temphash'] = gentoken();
     $hash = $_SESSION['temphash'];
 
 

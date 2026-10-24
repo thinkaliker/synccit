@@ -6,7 +6,7 @@ include("session.php");
 include("userclass.php");
 
 if(!isset($_SESSION['temphash'])) {
-    $_SESSION['temphash'] = hash("sha256", genrand());
+    $_SESSION['temphash'] = gentoken();
 }
 
 $loggedin = $session->isLoggedIn();
@@ -216,7 +216,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $_SESSION['temphash'] = hash("sha256", genrand());
+    $_SESSION['temphash'] = gentoken();
     $hash = $_SESSION['temphash'];
 }
 

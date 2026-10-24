@@ -7,7 +7,7 @@ include("userclass.php");
 include("email.php");
 
 if(!isset($_SESSION['temphash'])) {
-    $_SESSION['temphash'] = hash("sha256", genrand());
+    $_SESSION['temphash'] = gentoken();
 }
 
 $error = "";
