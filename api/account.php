@@ -465,7 +465,14 @@ function createAccount($username, $password, $email, $developer) {
             '".$mysql->real_escape_string($developer)."'
         )";
 
-        if($mysql->query($sql)) {
+        // mysqli throws on errors since PHP 8.1; a taken username must still
+        // reach the "already exists" check below rather than becoming a 500
+        try {
+            $insertResult = $mysql->query($sql);
+        } catch (mysqli_sql_exception $e) {
+            $insertResult = false;
+        }
+        if($insertResult) {
             // Success
             // just return nothing meaning no error
             $error = "";

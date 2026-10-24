@@ -74,7 +74,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 '".$mysql->real_escape_string(clientip())."',
                 '".$is_admin_new."'
             )";
-            if($mysql->query($sql)) {
+            // mysqli throws on errors since PHP 8.1; catch it so a taken
+            // username reaches the errno check instead of becoming a 500
+            try {
+                $insertResult = $mysql->query($sql);
+            } catch (mysqli_sql_exception $e) {
+                $insertResult = false;
+            }
+            if($insertResult) {
                 $message = "user created";
                 $action = 'list';
             } else {
@@ -104,7 +111,12 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 `email`    = '".$mysql->real_escape_string($email)."',
                 `is_admin` = '".$is_admin_new."'
                 WHERE `id` = '".$post_id."' LIMIT 1";
-            if($mysql->query($sql)) {
+            try {
+                $updateResult = $mysql->query($sql);
+            } catch (mysqli_sql_exception $e) {
+                $updateResult = false;
+            }
+            if($updateResult) {
                 $message = "user updated";
             } else {
                 $error = ($mysql->errno == 1062) ? "username already exists" : "database error";

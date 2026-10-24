@@ -75,7 +75,14 @@ if(isset($_POST['create'])) {
             '".$mysql->real_escape_string(clientip())."'
         )";
 
-        if($mysql->query($sql)) {
+        // mysqli throws on errors since PHP 8.1; a taken username must still
+        // reach the "already exists" check below rather than becoming a 500
+        try {
+            $insertResult = $mysql->query($sql);
+        } catch (mysqli_sql_exception $e) {
+            $insertResult = false;
+        }
+        if($insertResult) {
             //REDIRECT TO LOGIN
             header("Location: login.php");
             exit;

@@ -1,11 +1,10 @@
 <?php
 
 
-// This requires PHPMailer
-// You can get it here: https://github.com/Synchro/PHPMailer
-// either copy the folder (renamed to phpmailer in this case) to this directory
-// or add it to your include_path and delete the phpmailer/ below
-//include("phpmailer/class.phpmailer.php");
+// PHPMailer is installed by Composer (see composer.json). Since 6.0 it lives in
+// a namespace, so it has to be imported or `new PHPMailer()` fatals
+use PHPMailer\PHPMailer\PHPMailer;
+
 require __DIR__ . '/vendor/autoload.php';
 
 include_once("config.php");
