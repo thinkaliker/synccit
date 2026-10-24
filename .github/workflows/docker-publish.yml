@@ -9,9 +9,60 @@ on:
   pull_request:
     branches:
       - master
+  # Weekly rebuild so Debian and base-image security fixes reach the published
+  # image even in weeks with no commits
+  schedule:
+    - cron: '23 6 * * 1'
+  workflow_dispatch:
 
 jobs:
+  # Builds the image and runs tests/smoke.py against the full stack (app,
+  # MariaDB, mailpit). Nothing is published unless this passes.
+  smoke-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image for testing
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          pull: true
+          tags: synccit:smoke
+          cache-from: type=gha
+
+      - name: Start stack (app + MariaDB + mailpit)
+        env:
+          SYNCCIT_IMAGE: synccit:smoke
+        run: >-
+          docker compose -p synccit-smoke
+          -f docker-compose.yml -f tests/docker-compose.smoke.yml
+          --profile internal-db up -d --wait --wait-timeout 180
+
+      - name: Smoke test
+        run: python3 tests/smoke.py
+
+      - name: Fail on PHP errors or deprecations
+        run: |
+          if docker logs synccit 2>&1 | grep -E 'PHP (Fatal|Parse|Warning|Notice|Deprecated)'; then
+            echo "::error::PHP logged errors or deprecations during the smoke test"
+            exit 1
+          fi
+
+      - name: App log
+        if: always()
+        run: docker logs synccit 2>&1 | tail -n 200
+
   build-and-push:
+    needs: smoke-test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -40,10 +91,12 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/thinkaliker/synccit
+          # type=sha adds sha-<commit>, a per-commit tag to roll back to
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=sha
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push
@@ -54,5 +107,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # always fetch the current base image; the weekly run also skips the
+          # layer cache so the apt packages are refreshed too
+          pull: true
+          no-cache: ${{ github.event_name == 'schedule' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

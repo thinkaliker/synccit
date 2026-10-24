@@ -76,6 +76,15 @@ On a manual install there is no `.env` — set `$trustedproxies` in `config.php`
 instead, and point your own web server at the same list (`RemoteIPTrustedProxy`
 for Apache's `mod_remoteip`, `set_real_ip_from` for nginx).
 
+### Smoke test
+
+CI builds the image and runs `tests/smoke.py` against the full stack (app,
+MariaDB and a mailpit SMTP sink) before anything is published. It covers the
+web pages, admin, password reset email, and the sync and account APIs, and the
+build fails on any PHP error or deprecation in the log. The same run works
+locally; see the top of `tests/smoke.py`. It refuses to touch a database that
+already has users, so it can't be pointed at a real deployment by mistake.
+
 ---
 
 ## Manual Install

@@ -1,0 +1,20 @@
+# Opens PRs for new base images, PHP packages and workflow actions. Each PR
+# runs the CI smoke test, so a bump that breaks something shows up red before
+# it is merged and published.
+version: 2
+updates:
+  # php:8.5.x-apache-trixie in the Dockerfile
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+  # PHPMailer (composer.json / composer.lock)
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: weekly
+  # actions used in .github/workflows
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

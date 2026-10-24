@@ -12,8 +12,9 @@ vendor/
 .env.*
 
 # Dev-only: api/test.php creates throwaway accounts and links through the API
-# and must never be reachable on a deployed server
+# and must never be reachable on a deployed server; tests/ is the CI smoke test
 api/test.php
+tests/
 
 # Schema / docs should not be inside the web root
 *.sql
