@@ -4,6 +4,146 @@
 include("pbkdf2.php");
 
 
+// ── Real client IP ─────────────────────────────────────────────────────────
+// Everything that records or logs an IP goes through clientip(). Behind a
+// reverse proxy (Caddy/CrowdSec) REMOTE_ADDR is the proxy, so the real address
+// has to come from X-Forwarded-For — but only when the request genuinely
+// arrived from a proxy we trust, otherwise any client could forge its own IP
+// and poison the ban list.
+//
+// The trust list is $trustedproxies in config.php (seeded from the
+// TRUSTED_PROXIES env var under Docker). In the Docker image mod_remoteip has
+// usually already rewritten REMOTE_ADDR from the same list; then REMOTE_ADDR
+// is the client, is not in the list, and clientip() returns it untouched. The
+// PHP-side parsing matters for installs behind a proxy that isn't this image's
+// Apache.
+
+
+// $trustedproxies as a list of ranges, parsed once
+function trustedproxies() {
+    static $list = null;
+    if($list !== null) {
+        return $list;
+    }
+
+    $list = array();
+
+    // fall back to the environment directly, in case something pulled us in
+    // without config.php having run first
+    global $trustedproxies;
+    $raw = isset($trustedproxies) ? $trustedproxies : getenv('TRUSTED_PROXIES');
+    if(!is_string($raw)) {
+        return $list;
+    }
+
+    foreach(explode(",", $raw) as $entry) {
+        $entry = trim($entry);
+        if($entry !== "") {
+            $list[] = $entry;
+        }
+    }
+
+    return $list;
+}
+
+
+// does $ip fall inside $range, which is either a bare IP or CIDR notation?
+// works for both v4 and v6 by comparing the packed forms byte by byte
+function ipinrange($ip, $range) {
+    $ipbin = @inet_pton($ip);
+    if($ipbin === false) {
+        return false;
+    }
+
+    if(strpos($range, "/") === false) {
+        $rangebin = @inet_pton($range);
+        return $rangebin !== false && $ipbin === $rangebin;
+    }
+
+    list($subnet, $bits) = explode("/", $range, 2);
+    $subbin = @inet_pton($subnet);
+    // a v4 address can't be inside a v6 range, and vice versa: packed lengths differ
+    if($subbin === false || strlen($subbin) !== strlen($ipbin)) {
+        return false;
+    }
+
+    $bits = (int) $bits;
+    if($bits < 0 || $bits > strlen($ipbin) * 8) {
+        return false;
+    }
+
+    $wholebytes = intdiv($bits, 8);
+    $leftover   = $bits % 8;
+
+    if($wholebytes > 0 && strncmp($ipbin, $subbin, $wholebytes) !== 0) {
+        return false;
+    }
+    if($leftover === 0) {
+        return true;
+    }
+
+    $mask = chr((0xff << (8 - $leftover)) & 0xff);
+    return ($ipbin[$wholebytes] & $mask) === ($subbin[$wholebytes] & $mask);
+}
+
+
+function istrustedproxy($ip) {
+    if($ip === "") {
+        return false;
+    }
+    foreach(trustedproxies() as $range) {
+        if(ipinrange($ip, $range)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function clientip() {
+    static $cached = null;
+    if($cached !== null) {
+        return $cached;
+    }
+
+    $remote = $_SERVER['REMOTE_ADDR'] ?? "";
+
+    // not behind a proxy we trust: REMOTE_ADDR is the only thing worth believing
+    if(!istrustedproxy($remote) || empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        return $cached = $remote;
+    }
+
+    // walk the chain right to left and take the first hop that isn't one of
+    // our own proxies. everything further left was appended by someone we
+    // don't control, so it's attacker supplied
+    $chain = explode(",", $_SERVER['HTTP_X_FORWARDED_FOR']);
+    for($i = count($chain) - 1; $i >= 0; $i--) {
+        $hop = trim($chain[$i]);
+
+        // some proxies append a port: 1.2.3.4:5678 or [::1]:5678
+        if(strpos($hop, "[") === 0) {
+            $end = strpos($hop, "]");
+            if($end !== false) {
+                $hop = substr($hop, 1, $end - 1);
+            }
+        } else if(substr_count($hop, ":") === 1) {
+            $hop = substr($hop, 0, strpos($hop, ":"));
+        }
+
+        if($hop === "" || istrustedproxy($hop)) {
+            continue;
+        }
+        if(@inet_pton($hop) === false) {
+            break; // malformed chain, don't guess
+        }
+        return $cached = $hop;
+    }
+
+    return $cached = $remote;
+}
+
+
+
 if($prettyurls) {
     define('DEVICESURL',       $baseurl."/devices");
     define('RESETURL',         $baseurl."/reset");

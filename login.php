@@ -77,11 +77,16 @@ if(isset($_POST['login'])) {
 
         } else {
             //password wrong
+            // 401 rather than a 200 with an error in the page, so an edge proxy
+            // (Caddy/CrowdSec) can spot brute force without parsing html. no
+            // WWW-Authenticate header, so browsers still render the form
+            http_response_code(401);
             $error = "username or password wrong";
         }
 
 
     } else {
+        http_response_code(401);
         $error = "username or password wrong";
     }
 	

@@ -7,8 +7,9 @@
 # then use:  FROM php:8.2.35-apache-bookworm@sha256:<digest>
 FROM php:8.2.35-apache-bookworm
 
-# Enable mod_rewrite and apply AllowOverride config
-RUN a2enmod rewrite
+# Enable mod_rewrite, plus mod_remoteip so the access log and PHP see the real
+# client IP rather than the reverse proxy's (see apache.conf)
+RUN a2enmod rewrite remoteip
 COPY apache.conf /etc/apache2/conf-enabled/synccit.conf
 
 # Install mysqli extension

@@ -71,6 +71,8 @@ if(isset($_POST['do']) && $_POST['do'] == "edit" && ($_POST['hash'] ?? "") == $h
         }
 
     } else {
+        // re-authentication failed: same 401 as the login form
+        http_response_code(401);
         $error = "incorrect password";
     }
 

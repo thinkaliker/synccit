@@ -72,7 +72,7 @@ if(isset($_POST['create'])) {
             '".$mysql->real_escape_string($salt)."',
             '".$mysql->real_escape_string($email)."',
             '".time()."',
-            '".$mysql->real_escape_string($_SERVER['REMOTE_ADDR'])."'
+            '".$mysql->real_escape_string(clientip())."'
         )";
 
         if($mysql->query($sql)) {

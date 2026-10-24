@@ -37,6 +37,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     $post_id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 
     if((isset($_POST['csrf']) ? $_POST['csrf'] : '') !== $hash) {
+        http_response_code(403); // failed csrf check on an admin action
         $error = "invalid request, retry";
         $post_action = '';
     }
@@ -70,7 +71,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 '".$mysql->real_escape_string($salt)."',
                 '".$mysql->real_escape_string($email)."',
                 '".time()."',
-                '".$mysql->real_escape_string($_SERVER['REMOTE_ADDR'])."',
+                '".$mysql->real_escape_string(clientip())."',
                 '".$is_admin_new."'
             )";
             if($mysql->query($sql)) {

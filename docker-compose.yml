@@ -59,6 +59,10 @@ services:
       INIT_APPS_DB: ${INIT_APPS_DB:-false}
       # Set to true to disable new user registration
       DISABLE_REGISTRATION: ${DISABLE_REGISTRATION:-false}
+      # Comma separated IPs/CIDRs allowed to set X-Forwarded-For. Required when
+      # running behind a reverse proxy (Caddy, nginx, Cloudflare) so logs and
+      # the recorded signup IP show the real client. Empty = trust nobody.
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
     depends_on:
       synccit_db:
         condition: service_healthy

@@ -71,7 +71,7 @@ if(isset($_POST['data'])) {
                 $r = addAuth($username, $authinfo["userid"], $device, $developer);
 
                 if($r["success"] == "" ) {
-                    xerror($r["error"], "xml");
+                    xerror($r["error"], "xml", $r["status"]);
                 } else {
                     xdevice($device, $r["success"], "xml");
                 }
@@ -124,7 +124,7 @@ if(isset($_POST['data'])) {
             $r = addLogin($username, $password, $developer);
 
             if($r["success"] == "" ) {
-                xerror($r["error"], "json");
+                xerror($r["error"], "json", $r["status"]);
             } else {
                 xlogin($r["success"], "json");
             }
@@ -169,7 +169,7 @@ if(isset($_POST['data'])) {
             $r = addAuth($username, $authinfo["userid"], $device, $developer);
 
             if($r["success"] == "" ) {
-                xerror($r["error"], "json");
+                xerror($r["error"], "json", $r["status"]);
             } else {
                 xdevice($device, $r["success"], "json");
             }
@@ -224,11 +224,11 @@ function checkAuth($username, $auth, $mode=false) {
                 'login'     => $auth
             );
         } else {
-            xerror("not authorized", $mode);
+            xerror("not authorized", $mode, 401);
         }
 
     } else {
-        xerror("not authorized", $mode);
+        xerror("not authorized", $mode, 401);
     }
 }
 
@@ -461,7 +461,7 @@ function createAccount($username, $password, $email, $developer) {
             '".$mysql->real_escape_string($salt)."',
             '".$mysql->real_escape_string($email)."',
             '".time()."',
-            '".$mysql->real_escape_string($_SERVER['REMOTE_ADDR'])."',
+            '".$mysql->real_escape_string(clientip())."',
             '".$mysql->real_escape_string($developer)."'
         )";
 
@@ -550,7 +550,9 @@ function addAuth($username, $userid, $device, $developer) {
 
 
 
-    return array("success" => $success, "error" => $error);
+    // the caller is already authenticated by the time we get here, so the only
+    // way to fail is a database problem: never report that as 401
+    return array("success" => $success, "error" => $error, "status" => 500);
 
 }
 
@@ -560,6 +562,9 @@ function addLogin($username, $password, $developer) {
 
     $success = "";
     $error = "";
+    // http status to report $error with. this function verifies a password, so
+    // a failure here is a failed login (401) unless it's our own fault (500)
+    $status = 401;
 
     //$key = genrand();
 
@@ -599,6 +604,7 @@ function addLogin($username, $password, $developer) {
                 $success = $loginhash;
             } else {
                 $error = "database error";
+                $status = 500;
             }
         } else {
             $error = "username or password incorrect";
@@ -611,7 +617,7 @@ function addLogin($username, $password, $developer) {
         $error = "user not found";
     }
 
-    return array("success" => $success, "error" => $error);
+    return array("success" => $success, "error" => $error, "status" => $status);
 
 }
 
@@ -624,7 +630,14 @@ function addLogin($username, $password, $developer) {
 // $mode for output type
 // can be json or xml
 
-function xerror($string, $mode=false) {
+// $status sets the HTTP status sent alongside the error body. authentication
+// failures return 401 so an edge proxy (Caddy/CrowdSec) can count them as
+// failed logins without parsing the body. left null, the response keeps its
+// historical 200 so clients that only look at the body are undisturbed.
+function xerror($string, $mode=false, $status=null) {
+    if($status !== null) {
+        http_response_code($status);
+    }
     header("X-Error: $string");
     if($mode == "json") {
         $json = array();

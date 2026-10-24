@@ -42,6 +42,18 @@ $prettyurls = getenv('PRETTY_URLS') !== false ? (bool) getenv('PRETTY_URLS') : t
 // Set to true to disable new user registration
 $disableRegistration = filter_var(getenv('DISABLE_REGISTRATION') ?: 'false', FILTER_VALIDATE_BOOLEAN);
 
+// Reverse proxy: comma separated IPs or CIDRs that are allowed to set
+// X-Forwarded-For. Set this when synccit runs behind Caddy, nginx, Cloudflare
+// or similar, so logs and recorded IPs show the real client instead of the
+// proxy. Keep it as narrow as possible: anything listed here is trusted to
+// claim any client address it likes.
+//   e.g. '172.16.0.0/12,127.0.0.1/32,::1/128'
+// Empty means X-Forwarded-For is ignored entirely and the address that
+// actually connected is used, which is correct when nothing sits in front.
+// Under Docker this is set from TRUSTED_PROXIES in .env, and mod_remoteip is
+// configured from the same variable (see apache.conf).
+$trustedproxies = getenv('TRUSTED_PROXIES') ?: '';
+
 // For password reset emails, using SMTP
 $smtpserver = getenv('SMTP_SERVER') ?: 'smtp.gmail.com';
 $smtpauth   = true;

@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `email` text,
   `lastlogin` int(10) unsigned DEFAULT '0',
   `lastactivity` int(10) unsigned DEFAULT '0',
-  `lastip` varchar(15) DEFAULT NULL,
+  `lastip` varchar(45) DEFAULT NULL,
   `numlink` int(8) unsigned DEFAULT '0',
   `numcomments` int(8) unsigned DEFAULT '0',
   `loginattempts` int(2) unsigned DEFAULT '0',

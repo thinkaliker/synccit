@@ -15,6 +15,7 @@ $hideform = 0;
 
 if(isset($_POST['reset']) && $_POST['reset'] == "reset") {
     if(($_POST['hash'] ?? "") != $_SESSION['temphash']) {
+        http_response_code(403); // failed csrf check, not a credential failure
         $error = "there was an error. retry";
     // check if it's a valid-ish email. it's not nothing. and it at least contains an @
     } else if(isset($_POST['email']) && $_POST['email'] != "" && count(explode("@", $_POST['email'])) == 2) {
@@ -135,6 +136,9 @@ if(isset($_GET['u']) && ((int) $_GET['u'] > 0) && isset($_GET['t'])) {
 
 
     } else {
+        // the reset token is guessable in principle, so a bad one is a failed
+        // authentication and gets counted like any other
+        http_response_code(401);
         $error = "wrong reset code. try resetting again";
     }
 }

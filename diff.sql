@@ -95,3 +95,16 @@ ALTER TABLE  `user` ADD  `canreset` INT( 1 ) NOT NULL DEFAULT  '0';
 -- set the first admin manually: UPDATE `user` SET `is_admin` = 1 WHERE `username` = 'yourusername';
 
 ALTER TABLE `user` ADD `is_admin` INT(1) NOT NULL DEFAULT '0';
+
+
+-- ----------------------------------------------
+
+
+-- real client IP behind a reverse proxy
+
+-- `lastip` now holds whatever X-Forwarded-For resolved to, which can be an
+-- IPv6 address. 15 chars only ever fit IPv4, and on a strict-mode server the
+-- oversized value fails the INSERT instead of truncating.
+-- the docker entrypoint applies this automatically on start.
+
+ALTER TABLE `user` MODIFY `lastip` varchar(45) DEFAULT NULL;

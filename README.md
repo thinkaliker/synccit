@@ -41,8 +41,40 @@ All settings are controlled via environment variables in `.env`. Key options:
 | `BASE_HOST` | `http://localhost:8080` | Public-facing URL (no trailing slash) |
 | `SMTP_SERVER` / `SMTP_USER` / `SMTP_PASS` | — | SMTP credentials for password reset emails |
 | `SYNCCIT_IMAGE` | `ghcr.io/thinkaliker/synccit:latest` | Docker image to pull |
+| `TRUSTED_PROXIES` | — | Comma separated IPs/CIDRs allowed to set `X-Forwarded-For` (see below) |
 
 See `.env.example` for the full list.
+
+### Running behind a reverse proxy
+
+If synccit sits behind Caddy, nginx, or Cloudflare, set `TRUSTED_PROXIES` to the
+proxy's address(es) — comma separated IPs or CIDRs:
+
+```
+TRUSTED_PROXIES=172.16.0.0/12,127.0.0.1/32,::1/128
+```
+
+Without it every request is attributed to the proxy: the Apache access log,
+`docker compose logs synccit`, and the signup IP stored in `user`.`lastip` all
+show the proxy's address instead of the client's. With it set, `mod_remoteip`
+resolves the real client from `X-Forwarded-For` before anything is logged.
+
+The header is only honoured on connections that actually came from a listed
+proxy, so a client cannot forge its own address. Leaving `TRUSTED_PROXIES`
+unset means `X-Forwarded-For` is ignored entirely — safe, but only correct when
+synccit is reached directly.
+
+This matters for IP-based blocking (fail2ban, CrowdSec): failed authentication
+returns HTTP `401`, and the log line it produces carries the client's address
+only when the proxy is trusted.
+
+Keep the list as narrow as you can. Anything on it is trusted to claim whatever
+client address it likes, so the Caddy container's own address is a better value
+than the whole private range it happens to sit in.
+
+On a manual install there is no `.env` — set `$trustedproxies` in `config.php`
+instead, and point your own web server at the same list (`RemoteIPTrustedProxy`
+for Apache's `mod_remoteip`, `set_real_ip_from` for nginx).
 
 ---
 
@@ -713,6 +745,13 @@ Format is:
 Link `555555` not returned since it was never updated.
 
 ## Error Codes
+
+Errors are returned in the body as shown above. Authentication failures
+(`not authorized`, `username or password incorrect`, `user not found`) are also
+sent with HTTP status `401`, so a proxy or intrusion-prevention tool can count
+failed logins without parsing the body. `database error` is sent with `500`.
+Every other error keeps HTTP `200` for backwards compatibility, so clients that
+only read the body are unaffected.
 
 * `no post data`
  * No post data sent or at least none that we know what to do with
