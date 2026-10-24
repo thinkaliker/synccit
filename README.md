@@ -82,20 +82,27 @@ for Apache's `mod_remoteip`, `set_real_ip_from` for nginx).
 
 ## Requirements
 
-* PHP 5.3
-* MySQL database
+* PHP 8.2 or newer; 8.5 recommended (it's what the Docker image runs, with
+  security fixes until the end of 2029). Use a patched release: anything below
+  8.2.35 / 8.3.36 / 8.4.27 / 8.5.12 is open to the PHP2Shell RCEs
+  (CVE-2026-109618, CVE-2026-109619)
+* MySQL or MariaDB database
+* [Composer](https://getcomposer.org/), which installs PHPMailer for the
+  password reset emails
 
 ## Installing
 
 1. Create new database (using mysql command, phpMyAdmin, etc.)
 2. Run mysql.sql on database (using mysql command, phpMyAdmin, etc.)
-3. Edit `config.php` with database info and API location
-4. Site should up and running. Go to index.php in browser
+3. Run `composer install --no-dev` in the synccit directory
+4. Edit `config.php` with database info and API location
+5. Site should up and running. Go to index.php in browser
 
 ## Updating
 
 1. Replace all files except config.php
-2. Run relevant part of `diff.sql` from your current version
+2. Run `composer install --no-dev`
+3. Run relevant part of `diff.sql` from your current version
 
 
 # API Docs

@@ -1,11 +1,12 @@
-# Pinned to the bookworm variant and an exact PHP release for reproducibility.
-# 8.2.35 is the minimum safe 8.2 release: anything older is vulnerable to the
-# unauthenticated RCEs CVE-2026-109618 / CVE-2026-109619 ("PHP2Shell", fixed
-# 2026-10-21). Bump this for future PHP security releases; never go below it.
+# Pinned to the trixie variant and an exact PHP release for reproducibility.
+# PHP 8.5 gets security fixes until 2029-12-31. 8.5.12 is the minimum safe 8.5
+# release: anything older is vulnerable to the unauthenticated RCEs
+# CVE-2026-109618 / CVE-2026-109619 ("PHP2Shell", fixed 2026-10-21). Bump this
+# for future PHP security releases; never go below it.
 # For full immutability, pin by digest. Get it with:
-#   docker buildx imagetools inspect php:8.2.35-apache-bookworm --format '{{.Manifest.Digest}}'
-# then use:  FROM php:8.2.35-apache-bookworm@sha256:<digest>
-FROM php:8.2.35-apache-bookworm
+#   docker buildx imagetools inspect php:8.5.12-apache-trixie --format '{{.Manifest.Digest}}'
+# then use:  FROM php:8.5.12-apache-trixie@sha256:<digest>
+FROM php:8.5.12-apache-trixie
 
 # Enable mod_rewrite, plus mod_remoteip so the access log and PHP see the real
 # client IP rather than the reverse proxy's (see apache.conf)
@@ -28,8 +29,9 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 # Install MySQL client (used in entrypoint for health check and schema init) + unzip for Composer
 RUN apt-get update && apt-get install -y default-mysql-client unzip && rm -rf /var/lib/apt/lists/*
 
-# Install PHP dependencies (PHPMailer) — copy composer.json first for layer caching
-COPY composer.json /var/www/html/composer.json
+# Install PHP dependencies (PHPMailer) at the versions in composer.lock — copy
+# the composer files first for layer caching
+COPY composer.json composer.lock /var/www/html/
 RUN composer install --no-dev --no-interaction --prefer-dist --working-dir=/var/www/html
 
 # Copy application source (vendor/ is in .dockerignore so it won't overwrite the installed deps)
