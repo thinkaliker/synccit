@@ -1,8 +1,11 @@
-# Pinned to the bookworm variant for reproducibility.
+# Pinned to the bookworm variant and an exact PHP release for reproducibility.
+# 8.2.35 is the minimum safe 8.2 release: anything older is vulnerable to the
+# unauthenticated RCEs CVE-2026-109618 / CVE-2026-109619 ("PHP2Shell", fixed
+# 2026-10-21). Bump this for future PHP security releases; never go below it.
 # For full immutability, pin by digest. Get it with:
-#   docker buildx imagetools inspect php:8.2-apache-bookworm --format '{{.Manifest.Digest}}'
-# then use:  FROM php:8.2-apache-bookworm@sha256:<digest>
-FROM php:8.2-apache-bookworm
+#   docker buildx imagetools inspect php:8.2.35-apache-bookworm --format '{{.Manifest.Digest}}'
+# then use:  FROM php:8.2.35-apache-bookworm@sha256:<digest>
+FROM php:8.2.35-apache-bookworm
 
 # Enable mod_rewrite and apply AllowOverride config
 RUN a2enmod rewrite
@@ -10,6 +13,12 @@ COPY apache.conf /etc/apache2/conf-enabled/synccit.conf
 
 # Install mysqli extension
 RUN docker-php-ext-install mysqli
+
+# Disable session upload progress (unused by synccit). It is an RCE trigger for
+# CVE-2026-109619 and the not-yet-fixed CVE-2026-115560, and php.net advises
+# turning it off even on patched releases. Set in php.ini (not .htaccess /
+# php_admin_flag) so it applies at startup, before any request is parsed.
+RUN echo 'session.upload_progress.enabled = 0' > "$PHP_INI_DIR/conf.d/zz-synccit.ini"
 
 # Install Composer (build-time only — not present in the final runtime layer's PATH use)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

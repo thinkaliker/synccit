@@ -1,6 +1,6 @@
 services:
   synccit:
-    image: ${SYNCCIT_IMAGE:-ghcr.io/drakeapps/synccit:latest}
+    image: ${SYNCCIT_IMAGE:-ghcr.io/thinkaliker/synccit:latest}
     # Container now runs Apache as the unprivileged www-data user on port 8080.
     ports:
       - "${APP_PORT:-8080}:8080"

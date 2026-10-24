@@ -13,7 +13,6 @@ if($session->isLoggedIn()) {
 
 
 $error = "";
-$hash = "";
 $username = "";
 
 if(isset($_POST['login'])) {
@@ -71,6 +70,7 @@ if(isset($_POST['login'])) {
 
                 //redirect to homepage
                 header("Location: index.php");
+                exit;
             } else {
                 $error = "database error. try again";
             }
@@ -100,7 +100,6 @@ htmlHeader("login - synccit");
 	<span class="error"><?php echo $error; ?></span><br /><br />
 	<form action="<?php echo LOGINURL; ?>" method="post">
 	
-	<input type="hidden" name="hash" value="<?php echo $hash; ?>" />
 	<label for="username">username</label><br />
 	<input type="text" id="username" name="username" value="<?php echo $username; ?>" class="textcreate" />
 	<br /><br />

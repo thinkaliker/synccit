@@ -13,7 +13,6 @@ if($disableRegistration) {
 }
 
 $error = "";
-$hash = "";
 $username = "";
 $email = "";
 
@@ -104,7 +103,6 @@ htmlHeader("create account - synccit");
     <span class="error"><?php echo $error; ?></span><br /><br />
     <form action="<?php echo REGISTERURL; ?>" method="post">
 
-        <input type="hidden" name="hash" value="<?php echo $hash; ?>" />
         <label for="username">username</label><br />
         <input type="text" id="username" name="username" value="<?php echo $username; ?>" class="textcreate" />
         <br /><br />
