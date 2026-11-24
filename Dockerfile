@@ -6,7 +6,7 @@
 # For full immutability, pin by digest. Get it with:
 #   docker buildx imagetools inspect php:8.5.12-apache-trixie --format '{{.Manifest.Digest}}'
 # then use:  FROM php:8.5.12-apache-trixie@sha256:<digest>
-FROM php:8.5.12-apache-trixie
+FROM php:8.6.0RC7-apache-trixie
 
 # Enable mod_rewrite, plus mod_remoteip so the access log and PHP see the real
 # client IP rather than the reverse proxy's (see apache.conf)
